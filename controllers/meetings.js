@@ -1,4 +1,4 @@
-const {prisma} = require('../config/db')
+const  {prisma}  = require('../lib/db');
 const { successResponse, errorResponse } = require('../lib/response')
 const { z } = require('zod');
 

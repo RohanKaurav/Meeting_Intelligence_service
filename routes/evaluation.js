@@ -6,7 +6,7 @@ router.get('/evaluation', (req, res) => {
         candidateName: "Rohan Kaurav",
         email: "rohan05kaurav@gmail.com", 
         repositoryUrl: "https://github.com/RohanKaurav/Meeting_Intelligence_service.git",
-        deployedUrl: "deploy ke baad",
+        deployedUrl: "http://meeting-intelligence-service.vercel.app/",
         externalIntegration: "Discord Webhook",
         features: [
             "Authentication",

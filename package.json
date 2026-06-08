@@ -5,9 +5,12 @@
   "main": "index.js",
   "scripts": {
     "start": "node index.js",
-    "postinstall": "prisma generate --schema=./prisma/schema.prisma",
+    "postinstall": "prisma generate ",
     "dev": "nodemon index.js",
     "test": "node --test tests/unit.test.js"
+  },
+  "prisma": {
+    "schema": "prisma/schema.prisma"
   },
   "keywords": [],
   "author": "",
@@ -28,7 +31,7 @@
     "zod": "^4.4.3"
   },
   "devDependencies": {
-    "@prisma/config": "^7.8.0",
-    "dotenv": "^17.4.2"
+    "dotenv": "^17.4.2",
+    "prisma": "^7.8.0"
   }
 }

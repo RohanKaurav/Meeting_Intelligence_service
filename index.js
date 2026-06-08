@@ -7,7 +7,7 @@ const JWT_SECRET = process.env.JWT_SECRET ;
 const cors = require('cors');
 const swaggerUi = require('swagger-ui-express');
 const YAML = require('yamljs');
-
+const path = require('path'); 
 const meetingsRouter = require('./routes/meetings');
 const actionItemsRouter = require('./routes/actionItems');
 const { initScheduler } = require('./services/scheduler');
@@ -16,7 +16,7 @@ const structuredLogger = require('./middleware/logger');
 const errorHandler = require('./middleware/error');
 const authenticateToken = require('./middleware/auth'); 
 const { successResponse, errorResponse } = require('./lib/response');
-const swaggerDocument = YAML.load('./docs/openapi.yaml');
+const swaggerDocument = YAML.load(path.join(__dirname, 'docs', 'openapi.yaml')); 
 const evaluationRouter = require('./routes/evaluation');
 
 

@@ -5,8 +5,12 @@
   "main": "index.js",
   "scripts": {
     "start": "node index.js",
+    "postinstall": "npx prisma generate",
     "dev": "nodemon index.js",
-    "test": "node --test tests/unit.test.js"
+    "test": "node --test tests/unit.test.js , jest"
+  },
+  "engines": {
+    "node": ">=18.0.0"
   },
   "keywords": [],
   "author": "",

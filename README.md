@@ -21,7 +21,7 @@ An AI-powered Meeting Intelligence Service designed to capture, store, and analy
 * **Framework:** Express.js
 * **ORM:** Prisma
 * **Database:** PostgreSQL (Supabase)
-* **LLM Provider:** Google Gemini API (`gemini-1.5-flash`)
+* **LLM Provider:** Google Gemini API (`gemini-2.5-flash`)
 * **Validation:** Zod
 
 ---

@@ -5,14 +5,20 @@ const port = process.env.PORT || 3000;
 const jwt = require('jsonwebtoken');
 const JWT_SECRET = process.env.JWT_SECRET ;
 const cors = require('cors');
+const swaggerUi = require('swagger-ui-express');
+const YAML = require('yamljs');
+
 const meetingsRouter = require('./routes/meetings');
 const actionItemsRouter = require('./routes/actionItems');
-
+const { initScheduler } = require('./services/scheduler');
 const {traceIdMiddleware} = require('./middleware/trace');
 const structuredLogger = require('./middleware/logger');
 const errorHandler = require('./middleware/error');
 const authenticateToken = require('./middleware/auth'); 
 const { successResponse, errorResponse } = require('./lib/response');
+const swaggerDocument = YAML.load('./docs/openapi.yaml');
+const evaluationRouter = require('./routes/evaluation');
+
 
 app.use(cors());
 app.use(express.json());
@@ -44,7 +50,12 @@ app.get('/health',(req,res)=>{
 })
 app.use('/api/meetings', meetingsRouter);
 app.use('/api/action-items', actionItemsRouter);
+app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDocument));
+app.use('/api', evaluationRouter);
+
 app.use(errorHandler);
+
+initScheduler();
 
 app.listen(port,()=>{
     console.log(`Server is running on port ${port}`);

@@ -1,0 +1,219 @@
+openapi: 3.0.3
+info:
+  title: Meeting Intelligence Service API
+  description: API documentation for storing meetings, analyzing transcripts using Gemini, tracking action items, and sending reminders.
+  version: 1.0.0
+servers:
+  - url: http://localhost:3000
+    description: Local development server
+paths:
+  /api/auth/token:
+    post:
+      summary: Generate a JWT Token
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                username:
+                  type: string
+              required:
+                - username
+      responses:
+        '200':
+          description: Successful response
+        '400':
+          description: Invalid request payload
+
+  /api/meetings:
+    post:
+      summary: Create a new meeting
+      security:
+        - BearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                title:
+                  type: string
+                participants:
+                  type: array
+                  items:
+                    type: string
+                meetingDate:
+                  type: string
+                  format: date-time
+                transcript:
+                  type: array
+                  items:
+                    type: object
+                    properties:
+                      timestamp:
+                        type: string
+                      speaker:
+                        type: string
+                      text:
+                        type: string
+      responses:
+        '201':
+          description: Meeting created
+
+    get:
+      summary: List meetings with pagination
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: page
+          in: query
+          schema:
+            type: integer
+            default: 1
+        - name: limit
+          in: query
+          schema:
+            type: integer
+            default: 10
+      responses:
+        '200':
+          description: List of meetings
+
+  /api/meetings/{id}:
+    get:
+      summary: Get meeting details
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Meeting details
+        '404':
+          description: Meeting not found
+
+  /api/meetings/{id}/analyze:
+    post:
+      summary: Run AI analysis on a meeting transcript
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Structured AI summary, decisions, and action items with citations.
+        '404':
+          description: Meeting not found
+
+  /api/action-items:
+    post:
+      summary: Manually create an action item
+      security:
+        - BearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                meetingId:
+                  type: string
+                task:
+                  type: string
+                assignee:
+                  type: string
+                dueDate:
+                  type: string
+                  format: date-time
+      responses:
+        '201':
+          description: Action item created
+
+    get:
+      summary: List action items with filtering
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: status
+          in: query
+          schema:
+            type: string
+            enum: [PENDING, IN_PROGRESS, COMPLETED]
+        - name: assignee
+          in: query
+          schema:
+            type: string
+        - name: meetingId
+          in: query
+          schema:
+            type: string
+      responses:
+        '200':
+          description: List of filtered action items
+
+  /api/action-items/{id}/status:
+    patch:
+      summary: Update the status of an action item
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                status:
+                  type: string
+                  enum: [PENDING, IN_PROGRESS, COMPLETED]
+      responses:
+        '200':
+          description: Updated action item status
+
+  /api/action-items/overdue:
+    get:
+      summary: Retrieve all overdue action items
+      security:
+        - BearerAuth: []
+      responses:
+        '200':
+          description: List of overdue action items
+
+  /health:
+    get:
+      summary: Health check endpoint
+      responses:
+        '200':
+          description: UP status
+
+  /api/evaluation:
+    get:
+      summary: Evaluation details endpoint
+      responses:
+        '200':
+          description: Candidate details
+
+components:
+  securitySchemes:
+    BearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT

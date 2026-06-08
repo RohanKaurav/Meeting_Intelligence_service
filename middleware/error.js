@@ -17,7 +17,7 @@ function errorHandler(err, req, res, next){
     if(err.name === 'ZodError'){
         status = 400;
         code = 'VALIDATION_ERROR';
-        message = err.errors.map(e=> `${e.path.join('.')}:${e.message}}`).join(', ');
+        message = err.errors.map(e=> `${e.path.join('.')}: ${e.message}`).join(', ');
     }
 
     return errorResponse(res, code, message, status);

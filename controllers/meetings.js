@@ -1,5 +1,7 @@
 const  {prisma}  = require('../lib/db');
-const { successResponse, errorResponse } = require('../lib/response')
+const { successResponse, errorResponse } = require('../lib/response');
+const { runAIAnalysis } = require('../services/ai');
+
 const { z } = require('zod');
 
 const createMeetingSchema = z.object({
@@ -84,8 +86,75 @@ async function listMeetings(req, res, next){
     }
 }
 
+async function analyzeMeeting(req, res, next){
+    try{
+        const { id } = req.params;
+        const meeting =await prisma.meeting.findUnique({
+            where:{id}
+        });
+
+        if (!meeting) {
+            return errorResponse(res, 'NOT_FOUND', 'Meeting not found', 404);
+        }
+        const analysisResult = await runAIAnalysis(meeting.transcript);
+
+        const defaultDueDate = new Date(meeting.meetingDate);
+        defaultDueDate.setDate(defaultDueDate.getDate() + 7);
+
+        const savedData = await prisma.$transaction( async (tx) => {
+            await tx.meetingAnalysis.deleteMany({
+                where:{ meetingId: id}
+            });
+            const analysis = await tx.meetingAnalysis.create({
+                data:{
+                    meetingId: id,
+                    summary: analysisResult.summary,
+                    decisions: analysisResult.decisions,
+                    followUps: analysisResult.followUps
+                }
+            });
+
+            const actionItems = [];
+            if(analysisResult.actionItems && analysisResult.actionItems.length > 0){
+                 for (const item of analysisResult.actionItems) {
+                    const createdItem = await tx.actionItem.create({
+                        data: {
+                            meetingId: id,
+                            task: item.task,
+                            assignee: item.assignee,
+                            dueDate: defaultDueDate,
+                            citations: item.citations,
+                            status: 'PENDING'
+                        }
+                    });
+                    actionItems.push(createdItem);
+                }
+            }
+            return { analysis, actionItems };
+            
+        })
+         return successResponse(res, {
+            summary: savedData.analysis.summary,
+            decisions: savedData.analysis.decisions,
+            followUps: savedData.analysis.followUps,
+            actionItems: savedData.actionItems.map(item => ({
+                id: item.id,
+                task: item.task,
+                assignee: item.assignee,
+                dueDate: item.dueDate,
+                status: item.status,
+                citations: item.citations
+            }))
+        });
+
+    }catch(error){
+        next(error);
+    }
+}
+
 module.exports = {
     createMeeting,
     getMeeting,
-    listMeetings
+    listMeetings,
+    analyzeMeeting
 }

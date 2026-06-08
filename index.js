@@ -55,9 +55,10 @@ app.use('/api', evaluationRouter);
 
 app.use(errorHandler);
 
-initScheduler();
+
 
 if (process.env.NODE_ENV !== 'production') {
+    initScheduler();
     app.listen(port, () => {
         console.log(`Server is running on port ${port}`);
     });

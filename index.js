@@ -10,7 +10,7 @@ const YAML = require('yamljs');
 const path = require('path'); 
 const meetingsRouter = require('./routes/meetings');
 const actionItemsRouter = require('./routes/actionItems');
-const { initScheduler } = require('./services/scheduler');
+// const { initScheduler } = require('./services/scheduler');
 const {traceIdMiddleware} = require('./middleware/trace');
 const structuredLogger = require('./middleware/logger');
 const errorHandler = require('./middleware/error');
@@ -58,7 +58,7 @@ app.use(errorHandler);
 
 
 if (process.env.NODE_ENV !== 'production') {
-    initScheduler();
+    // initScheduler();
     app.listen(port, () => {
         console.log(`Server is running on port ${port}`);
     });
